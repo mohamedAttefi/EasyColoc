@@ -8,7 +8,8 @@
                     <p class="text-slate-500 dark:text-slate-400 text-base">Rejoignez la plus grande communauté de colocataires.</p>
                 </div>
                 <!-- Registration Form -->
-                <form action="#" class="space-y-5">
+                <form action="{{ route('login') }}" method="POST" class="space-y-5">
+                    @csrf
                     <!-- Full Name -->
                     <div class="flex flex-col gap-2">
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Nom complet</label>
