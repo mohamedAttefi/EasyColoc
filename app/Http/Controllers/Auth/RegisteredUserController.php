@@ -39,18 +39,15 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'reputation' => 0
         ]);
+        dd($user);
 
-        if(User::all()->count()){
+        if(User::all()->count() == 1){
             $user->update([
                 'is_super_admin' => 1
             ]);
         }
-
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('login');
     }
 }
