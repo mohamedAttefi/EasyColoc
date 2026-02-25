@@ -8,41 +8,86 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'reputation'
+        'reputation',
+        'is_super_admin',
+        'is_banned',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_super_admin' => 'boolean',
+        'is_banned' => 'boolean',
+    ];
+
+    public function ownedColocations()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(Colocation::class, 'owner_id');
+    }
+
+    public function colocations()
+    {
+        return $this->belongsToMany(Colocation::class, 'colocation_members')
+            ->withPivot('role', 'joined_at', 'left_at')
+            ->withTimestamps();
+    }
+
+    public function activeColocation()
+    {
+        return $this->colocations()
+            ->wherePivotNull('left_at')
+            ->where('status', 'active')
+            ->first();
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class, 'payer_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'payer_id');
+    }
+
+    public function receivedPayments()
+    {
+        return $this->hasMany(Payment::class, 'receiver_id');
+    }
+
+    public function invitations()
+    {
+        return $this->hasMany(Invitation::class, 'invited_by');
+    }
+
+    public function isGlobalAdmin(): bool
+    {
+        return $this->is_super_admin;
+    }
+
+    public function isOwnerOf(Colocation $colocation): bool
+    {
+        return $colocation->owner_id === $this->id;
+    }
+
+    public function isMemberOf(Colocation $colocation): bool
+    {
+        return $colocation->members()->where('user_id', $this->id)->exists();
+    }
+
+    public function canJoinColocation(): bool
+    {
+        return !$this->activeColocation();
     }
 }
