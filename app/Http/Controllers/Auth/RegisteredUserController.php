@@ -31,7 +31,26 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => [
+                'required', 
+                'string', 
+                'lowercase', 
+                'email:rfc,dns', 
+                'max:255', 
+                'unique:'.User::class,
+                function ($attribute, $value, $fail) {
+                    $domain = substr(strrchr($value, "@"), 1);
+                    $blockedDomains = [
+                        'tempmail.org', '10minutemail.com', 'guerrillamail.com',
+                        'mailinator.com', 'yopmail.com', 'temp-mail.org',
+                        'throwaway.email', 'maildrop.cc', 'tempmail.de'
+                    ];
+                    
+                    if (in_array($domain, $blockedDomains)) {
+                        $fail('Les adresses email temporaires ne sont pas autorisées.');
+                    }
+                }
+            ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
