@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invitation;
-use App\Models\Colocation;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -14,14 +13,11 @@ use App\Mail\InvitationMail;
 class InvitationController extends Controller
 {
 
-    /**
-     * Show form to create invitation.
-     */
     public function create(): View
     {
         $user = Auth::user();
         $colocation = $user->activeColocation();
-        
+
         if (!$colocation) {
             return redirect()->route('dashboard')
                 ->with('error', 'You need to join a colocation first.');
@@ -39,7 +35,7 @@ class InvitationController extends Controller
     {
         $user = Auth::user();
         $colocation = $user->activeColocation();
-        
+
         if (!$colocation) {
             return redirect()->route('dashboard')
                 ->with('error', 'You need to join a colocation first.');
@@ -58,7 +54,6 @@ class InvitationController extends Controller
             return back()->with('error', 'This user is already a member of your colocation.');
         }
 
-        // Check if there's already a pending invitation
         $existingInvitation = Invitation::where('email', $validated['email'])
             ->where('colocation_id', $colocation->id)
             ->pending()
@@ -67,7 +62,6 @@ class InvitationController extends Controller
         if ($existingInvitation) {
             return back()->with('error', 'An invitation has already been sent to this email.');
         }
-
         $invitation = Invitation::create([
             'email' => $validated['email'],
             'colocation_id' => $colocation->id,
@@ -75,18 +69,11 @@ class InvitationController extends Controller
             'expires_at' => now()->addDays(7),
         ]);
 
-        try {
-            Mail::to($validated['email'])->send(new InvitationMail($invitation));
-        } catch (\Exception $e) {
-            \Log::error('Failed to send invitation email: ' . $e->getMessage());
-        }
+        Mail::to($invitation->email)->send(new InvitationMail($invitation));
 
         return back()->with('success', 'Invitation sent successfully!');
     }
 
-    /**
-     * Show invitation acceptance page.
-     */
     public function show($token): View
     {
         $invitation = Invitation::where('token', $token)
@@ -108,9 +95,6 @@ class InvitationController extends Controller
         return view('invitations.show', compact('invitation'));
     }
 
-    /**
-     * Accept an invitation.
-     */
     public function accept($token): RedirectResponse
     {
         $invitation = Invitation::where('token', $token)->firstOrFail();
@@ -125,21 +109,17 @@ class InvitationController extends Controller
                 ->with('error', 'This invitation has already been accepted.');
         }
 
-        // Check if user exists
         $user = \App\Models\User::where('email', $invitation->email)->first();
 
         if (!$user) {
-            // Redirect to registration with pre-filled email
             return redirect()->route('register', ['email' => $invitation->email, 'token' => $token]);
         }
 
-        // Check if user already has an active colocation
         if ($user->activeColocation()) {
             return redirect()->route('login')
                 ->with('error', 'You are already part of an active colocation.');
         }
 
-        // Accept invitation and add user to colocation
         $invitation->accept();
         $invitation->colocation->addMember($user, 'member');
 
@@ -147,9 +127,6 @@ class InvitationController extends Controller
             ->with('success', 'Invitation accepted! You can now login to access your colocation.');
     }
 
-    /**
-     * Decline an invitation.
-     */
     public function decline($token): RedirectResponse
     {
         $invitation = Invitation::where('token', $token)->firstOrFail();
