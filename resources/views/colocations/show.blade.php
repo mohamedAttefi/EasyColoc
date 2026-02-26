@@ -18,24 +18,24 @@
             @if($colocation->isOwnerOf(Auth::user()))
                 <div class="flex gap-2">
                     <a href="{{ route('categories.index') }}" class="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                        Categories
+                        Catégories
                     </a>
                     <a href="{{ route('colocations.edit', $colocation) }}" class="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                        Edit
+                        Modifier
                     </a>
-                    <form method="POST" action="{{ route('colocations.destroy', $colocation) }}" onsubmit="return confirm('Are you sure you want to cancel this colocation?')">
+                    <form method="POST" action="{{ route('colocations.destroy', $colocation) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette colocation?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="px-3 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                            Cancel
+                            Annuler
                         </button>
                     </form>
                 </div>
             @else
-                <form method="POST" action="{{ route('colocations.leave', $colocation) }}" onsubmit="return confirm('Are you sure you want to leave this colocation?')">
+                <form method="POST" action="{{ route('colocations.leave', $colocation) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir quitter cette colocation?')">
                     @csrf
                     <button type="submit" class="px-3 py-2 text-sm border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
-                        Leave Colocation
+                        Quitter la Colocation
                     </button>
                 </form>
             @endif
@@ -55,7 +55,7 @@
 
     <!-- Members Section -->
     <div class="bg-white/80 dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-lg shadow-slate-200/40 p-6 mb-8">
-        <h2 class="text-lg font-bold text-ink dark:text-slate-100 font-display mb-4">Members ({{ $members->count() }})</h2>
+        <h2 class="text-lg font-bold text-ink dark:text-slate-100 font-display mb-4">Membres ({{ $members->count() }})</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($members as $member)
                 <div class="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-700 rounded-lg">
@@ -65,16 +65,16 @@
                     <div class="flex-1">
                         <p class="font-medium text-ink dark:text-slate-100">{{ $member->name }}</p>
                         <p class="text-sm text-slate-500 dark:text-slate-400">
-                            {{ $member->pivot->role === 'owner' ? 'Owner' : 'Member' }}
+                            {{ $member->pivot->role === 'owner' ? 'Propriétaire' : 'Membre' }}
                         </p>
                     </div>
                     
                     @if($colocation->isOwnerOf(Auth::user()) && $member->id !== Auth::id())
-                        <form method="POST" action="{{ route('colocations.removeMember', [$colocation, $member]) }}" onsubmit="return confirm('Remove {{ $member->name }} from the colocation?')">
+                        <form method="POST" action="{{ route('colocations.removeMember', [$colocation, $member]) }}" onsubmit="return confirm('Retirer {{ $member->name }} de la colocation?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-500 hover:text-red-700 text-sm">
-                                Remove
+                                Retirer
                             </button>
                         </form>
                     @endif
@@ -87,22 +87,22 @@
     <div class="bg-white/80 dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-lg shadow-slate-200/40">
         <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
             <div class="flex items-center gap-4">
-                <h2 class="text-lg font-bold text-ink dark:text-slate-100 font-display">Recent Expenses</h2>
+                <h2 class="text-lg font-bold text-ink dark:text-slate-100 font-display">Dépenses Récentes</h2>
                 
                 <!-- Month Filter -->
                 <form method="GET" action="{{ route('colocations.show', $colocation) }}" class="flex items-center gap-2">
                     <select name="month" onchange="this.form.submit()" class="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-ink dark:text-slate-100">
-                        <option value="all" {{ $monthFilter == 'all' ? 'selected' : '' }}>All Months</option>
+                        <option value="all" {{ $monthFilter == 'all' ? 'selected' : '' }}>Tous les Mois</option>
                         @foreach($availableMonths as $month)
                             <option value="{{ $month }}" {{ $monthFilter == $month ? 'selected' : '' }}>
-                                {{ \Carbon\Carbon::create()->month($month)->format('F') }}
+                                {{ \Carbon\Carbon::create()->month((int)$month)->format('F') }}
                             </option>
                         @endforeach
                     </select>
                 </form>
             </div>
             <a href="{{ route('expenses.create') }}" class="bg-primary hover:bg-primary/90 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors">
-                Add Expense
+                Ajouter une Dépense
             </a>
         </div>
         
@@ -111,9 +111,9 @@
                 <table class="w-full">
                     <thead class="bg-slate-50 dark:bg-slate-800 text-xs uppercase text-slate-500 dark:text-slate-400">
                         <tr>
-                            <th class="px-6 py-3 text-left">Title</th>
-                            <th class="px-6 py-3 text-left">Amount</th>
-                            <th class="px-6 py-3 text-left">Paid by</th>
+                            <th class="px-6 py-3 text-left">Titre</th>
+                            <th class="px-6 py-3 text-left">Montant</th>
+                            <th class="px-6 py-3 text-left">Payé par</th>
                             <th class="px-6 py-3 text-left">Date</th>
                             <th class="px-6 py-3 text-left">Actions</th>
                         </tr>
@@ -163,10 +163,10 @@
                 <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span class="material-symbols-outlined text-2xl text-slate-400">receipt_long</span>
                 </div>
-                <h3 class="text-lg font-semibold text-ink dark:text-slate-100 mb-2">No expenses yet</h3>
-                <p class="text-slate-500 dark:text-slate-400 mb-4">Start tracking shared expenses by adding your first expense.</p>
+                <h3 class="text-lg font-semibold text-ink dark:text-slate-100 mb-2">Aucune dépense pour le moment</h3>
+                <p class="text-slate-500 dark:text-slate-400 mb-4">Commencez à suivre les dépenses partagées en ajoutant votre première dépense.</p>
                 <a href="{{ route('expenses.create') }}" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                    Add First Expense
+                    Ajouter la Première Dépense
                 </a>
             </div>
         @endif
@@ -175,8 +175,8 @@
     <!-- Settlements Section -->
     <div id="settlements" class="bg-white/80 dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-lg shadow-slate-200/40 mb-8">
         <div class="p-6 border-b border-slate-200 dark:border-slate-800">
-            <h2 class="text-lg font-bold text-ink dark:text-slate-100 font-display">Remboursements simplifiÃ©s</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Qui doit quoi Ã  qui</p>
+            <h2 class="text-lg font-bold text-ink dark:text-slate-100 font-display">Remboursements simplifiés</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Qui doit quoi à qui</p>
         </div>
         @if(count($settlements) > 0)
             <div class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -186,10 +186,10 @@
                             <p class="font-medium text-ink dark:text-slate-100">
                                 {{ $settlement['from']->name }} doit {{ $settlement['to']->name }}
                             </p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">RÃ¨glement recommandÃ©</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Règlement recommandé</p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="text-lg font-bold text-red-500">â‚¬{{ number_format($settlement['amount'], 2) }}</span>
+                            <span class="text-lg font-bold text-red-500">€{{ number_format($settlement['amount'], 2) }}</span>
                             @if(Auth::id() === $settlement['from']->id || $colocation->isOwnerOf(Auth::user()))
                                 <form method="POST" action="{{ route('payments.store', $colocation) }}">
                                     @csrf
@@ -197,7 +197,7 @@
                                     <input type="hidden" name="receiver_id" value="{{ $settlement['to']->id }}">
                                     <input type="hidden" name="amount" value="{{ number_format($settlement['amount'], 2, '.', '') }}">
                                     <button type="submit" class="px-3 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-                                        Marquer payÃ©
+                                        Marquer payé
                                     </button>
                                 </form>
                             @endif
@@ -216,7 +216,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div class="bg-white/80 dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-lg shadow-slate-200/40">
             <div class="p-6 border-b border-slate-200 dark:border-slate-800">
-                <h2 class="text-lg font-bold text-ink dark:text-slate-100 font-display">Statistiques par catÃ©gorie</h2>
+                <h2 class="text-lg font-bold text-ink dark:text-slate-100 font-display">Statistiques par catégorie</h2>
             </div>
             @if($categoryStats->count() > 0)
                 <div class="p-6 space-y-4">
@@ -231,13 +231,13 @@
                                     <p class="text-xs text-slate-500 dark:text-slate-400">Total</p>
                                 </div>
                             </div>
-                            <span class="font-semibold text-ink dark:text-slate-100">â‚¬{{ number_format($category->expenses_sum_amount, 2) }}</span>
+                            <span class="font-semibold text-ink dark:text-slate-100">€{{ number_format($category->expenses_sum_amount, 2) }}</span>
                         </div>
                     @endforeach
                 </div>
             @else
                 <div class="p-6 text-center text-slate-500 dark:text-slate-400">
-                    Pas encore de statistiques par catÃ©gorie.
+                    Pas encore de statistiques par catégorie.
                 </div>
             @endif
         </div>
@@ -256,7 +256,7 @@
                                 </p>
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Total du mois</p>
                             </div>
-                            <span class="font-semibold text-ink dark:text-slate-100">â‚¬{{ number_format($stat->total, 2) }}</span>
+                            <span class="font-semibold text-ink dark:text-slate-100">€{{ number_format($stat->total, 2) }}</span>
                         </div>
                     @endforeach
                 </div>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -60,17 +60,17 @@
         </div>
 
         <div class="content">
-            <h2>Vous ?tes invit?(e) ? rejoindre une colocation !</h2>
+            <h2>Vous êtes invité(e) à rejoindre une colocation&nbsp;!</h2>
 
             <p>Bonjour,</p>
 
-            <p><strong>{{ $inviter->name }}</strong> vous invite ? rejoindre la colocation <strong>{{ $colocation->name }}</strong> sur EasyColoc.</p>
+            <p><strong>{{ $inviter->name }}</strong> vous invite à rejoindre la colocation <strong>{{ $colocation->name }}</strong> sur EasyColoc.</p>
 
             @if($colocation->description)
                 <p><em>{{ $colocation->description }}</em></p>
             @endif
 
-            <p>EasyColoc vous aide ? suivre les d?penses partag?es, calculer qui doit quoi ? qui et g?rer le budget de la colocation.</p>
+            <p>EasyColoc vous aide à suivre les dépenses partagées, calculer qui doit quoi à qui et gérer le budget de la colocation.</p>
 
             <p style="text-align: center;">
                 <a href="{{ $inviteUrl }}" class="button">Accepter l'invitation</a>
@@ -80,8 +80,8 @@
         </div>
 
         <div class="footer">
-            <p>Si vous n'avez pas encore de compte EasyColoc, vous pourrez en cr?er un apr?s avoir cliqu? sur le lien ci-dessus.</p>
-            <p>? {{ date('Y') }} EasyColoc. Tous droits r?serv?s.</p>
+            <p>Si vous n'avez pas encore de compte EasyColoc, vous pourrez en créer un après avoir cliqué sur le lien ci-dessus.</p>
+            <p>© {{ date('Y') }} EasyColoc. Tous droits réservés.</p>
         </div>
     </div>
 </body>
