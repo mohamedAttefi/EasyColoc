@@ -9,21 +9,21 @@
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                         </span>
-                        Joined by 10,000+ roommates
+                        Rejoint par 10 000+ colocataires
                     </div>
                     <h1 class="text-5xl font-black leading-[1.1] tracking-tight text-slate-900 dark:text-white lg:text-7xl">
-                        Stress-free shared living <span class="text-primary">starts here</span>
+                        La vie partagée sans stress <span class="text-primary">commence ici</span>
                     </h1>
                     <p class="text-lg leading-relaxed text-slate-600 dark:text-slate-400 max-w-xl">
-                        Manage bills, track debts, and settle up with roommates easily. The all-in-one platform for effortless colocation management and financial peace of mind.
+                        Gérez les factures, suivez les dettes et réglez facilement avec vos colocataires. La plateforme tout-en-un pour une gestion de colocation sans effort et une tranquillité d'esprit financière.
                     </p>
                     <div class="flex flex-wrap gap-4">
                         <button class="h-14 min-w-[180px] bg-primary text-white text-lg font-bold rounded-xl hover:scale-[1.02] transition-transform shadow-xl shadow-primary/20">
-                            Get Started Free
+                            Commencer Gratuitement
                         </button>
                         <button class="h-14 min-w-[180px] flex items-center justify-center gap-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-lg font-bold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                             <span class="material-symbols-outlined">play_circle</span>
-                            See Demo
+                            Voir la Démo
                         </button>
                     </div>
                 </div>
@@ -64,10 +64,10 @@
             <div class="mx-auto max-w-7xl">
                 <div class="mb-16 text-center">
                     <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
-                        Simplify your shared expenses
+                        Simplifiez vos dépenses partagées
                     </h2>
                     <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
-                        Everything you need to keep your household finances transparent and stress-free.
+                        Tout ce dont vous avez besoin pour garder les finances de votre foyer transparentes et sans stress.
                     </p>
                 </div>
                 <div class="grid gap-8 md:grid-cols-3">
@@ -75,27 +75,27 @@
                         <div class="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined text-3xl">receipt_long</span>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Expense Tracking</h3>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Suivi des Dépenses</h3>
                         <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Log every bill and shared purchase in seconds. Snap a photo of receipts and our OCR handles the rest. Never lose a receipt again.
+                            Enregistrez chaque facture et achat partagé en quelques secondes. Prenez une photo des reçus et notre OCR s'occupe du reste. Ne perdez plus jamais de reçu.
                         </p>
                     </div>
                     <div class="group flex flex-col gap-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 hover:border-primary/50 transition-colors shadow-sm">
                         <div class="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined text-3xl">handshake</span>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Debt Settlement</h3>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Règlement des Dettes</h3>
                         <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Settle up with a single tap using integrated payments. Our system calculates the most efficient way to pay back roommates.
+                            Règlez vos dettes en un seul clic avec les paiements intégrés. Notre système calcule la manière la plus efficace de rembourser vos colocataires.
                         </p>
                     </div>
                     <div class="group flex flex-col gap-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 hover:border-primary/50 transition-colors shadow-sm">
                         <div class="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined text-3xl">balance</span>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Fair Balances</h3>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Soldes Équitables</h3>
                         <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Custom split rules for different categories. Automatic balance calculations ensure everyone pays their fair share, always.
+                            Règles de partage personnalisées pour différentes catégories. Les calculs de solde automatiques garantissent que chacun paie sa part équitable, toujours.
                         </p>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
         <!-- How It Works Section -->
         <section class="bg-slate-100 dark:bg-slate-950 px-6 py-20 lg:px-10 lg:py-32" id="how-it-works">
             <div class="mx-auto max-w-5xl">
-                <h2 class="text-3xl font-black text-center mb-20 text-slate-900 dark:text-white">How it works</h2>
+                <h2 class="text-3xl font-black text-center mb-20 text-slate-900 dark:text-white">Comment ça marche</h2>
                 <div class="relative space-y-12">
                     <!-- Step 1 -->
                     <div class="flex gap-8 md:gap-16">
@@ -113,9 +113,9 @@
                             <div class="h-full w-0.5 bg-slate-300 dark:bg-slate-700 mt-4"></div>
                         </div>
                         <div class="pb-12">
-                            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Create a colocation</h3>
+                            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Créer une colocation</h3>
                             <p class="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
-                                Set up your shared home profile in under a minute. Define your address, monthly budget, and basic house rules.
+                                Configurez votre profil de logement partagé en moins d'une minute. Définissez votre adresse, votre budget mensuel et les règles de base de la maison.
                             </p>
                         </div>
                     </div>
@@ -126,9 +126,9 @@
                             <div class="h-full w-0.5 bg-slate-300 dark:bg-slate-700 mt-4"></div>
                         </div>
                         <div class="pb-12">
-                            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Invite roommates</h3>
+                            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Inviter les colocataires</h3>
                             <p class="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
-                                Send a magic link via WhatsApp or email to your housemates. They can join the group instantly without complex sign-ups.
+                                Envoyez un lien magique via WhatsApp ou email à vos colocataires. Ils peuvent rejoindre le groupe instantanément sans inscription complexe.
                             </p>
                         </div>
                     </div>
@@ -138,9 +138,9 @@
                             <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-white font-bold text-xl ring-8 ring-primary/10">3</div>
                         </div>
                         <div class="">
-                            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Start sharing</h3>
+                            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Commencer à partager</h3>
                             <p class="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
-                                Log groceries, utility bills, or cleaning supplies. Let EasyColoc handle the math, remind forgetful roommates, and keep everyone's debt clear.
+                                Enregistrez les courses, factures de services publics ou produits de nettoyage. Laissez EasyColoc gérer les calculs, rappeler les colocataires oublieux et maintenir les dettes de chacun claires.
                             </p>
                         </div>
                     </div>
@@ -151,13 +151,13 @@
         <section class="px-6 py-20 lg:px-10">
             <div class="mx-auto max-w-7xl rounded-3xl bg-primary px-8 py-16 text-center text-white lg:py-24 shadow-2xl relative overflow-hidden">
                 <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent pointer-events-none"></div>
-                <h2 class="relative z-10 text-4xl font-black sm:text-5xl lg:text-6xl mb-8">Ready to simplify your home?</h2>
+                <h2 class="relative z-10 text-4xl font-black sm:text-5xl lg:text-6xl mb-8">Prêt à simplifier votre foyer ?</h2>
                 <p class="relative z-10 mx-auto max-w-2xl text-xl text-primary-100 opacity-90 mb-10">
-                    Join over 10,000 roommates who have already saved time and avoided arguments by using EasyColoc.
+                    Rejoignez plus de 10 000 colocataires qui ont déjà économisé du temps et évité des disputes en utilisant EasyColoc.
                 </p>
                 <div class="relative z-10 flex flex-col sm:flex-row justify-center gap-4">
-                    <button class="bg-white text-primary px-10 py-5 rounded-xl font-black text-lg hover:bg-slate-50 transition-all hover:scale-105">Get Started for Free</button>
-                    <button class="border border-white/40 bg-white/10 backdrop-blur px-10 py-5 rounded-xl font-black text-lg hover:bg-white/20 transition-all">Contact Sales</button>
+                    <button class="bg-white text-primary px-10 py-5 rounded-xl font-black text-lg hover:bg-slate-50 transition-all hover:scale-105">Commencer Gratuitement</button>
+                    <button class="border border-white/40 bg-white/10 backdrop-blur px-10 py-5 rounded-xl font-black text-lg hover:bg-white/20 transition-all">Contacter le Support</button>
                 </div>
             </div>
         </section>

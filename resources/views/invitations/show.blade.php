@@ -1,9 +1,9 @@
-<x-guest-layout>
+﻿<x-guest-layout>
     <div class="w-full max-w-[520px] bg-white/80 dark:bg-slate-900 rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-200/70 dark:border-slate-800 p-8">
         <div class="mb-6">
-            <h2 class="text-3xl font-extrabold text-ink font-display mb-2">Invitation ? rejoindre une colocation</h2>
+            <h2 class="text-3xl font-extrabold text-ink font-display mb-2">Invitation à rejoindre une colocation</h2>
             <p class="text-slate-500 dark:text-slate-400 text-sm">
-                {{ $invitation->inviter->name }} vous invite ? rejoindre <strong>{{ $invitation->colocation->name }}</strong>.
+                {{ $invitation->inviter->name }} vous invite à rejoindre <strong>{{ $invitation->colocation->name }}</strong>.
             </p>
         </div>
 
