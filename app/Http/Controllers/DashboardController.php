@@ -35,6 +35,7 @@ class DashboardController extends Controller
                     'color' => $expense->category->color ?? 'gray'
                 ];
             }
+            $recentExpenses = $formattedExpenses;
 
             $debts = [];
             foreach ($balanceSummary['individual_balances'] as $debt) {
@@ -61,6 +62,9 @@ class DashboardController extends Controller
             $totalBalance = $balanceSummary['total_balance'];
             $totalDebts = $balanceSummary['total_you_owe'];
             $pendingInvitations = 0;
+            if ($activeColocation->isOwnerOf($user)) {
+                $pendingInvitations = $activeColocation->invitations()->pending()->count();
+            }
             
             return view('dashboard', compact(
                 'activeColocation',
