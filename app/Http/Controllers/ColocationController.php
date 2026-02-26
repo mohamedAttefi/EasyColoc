@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Colocation;
 use App\Models\Category;
+use App\Models\DebtTransfer;
 use App\Models\User;
+use App\Services\BalanceCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -58,20 +60,66 @@ class ColocationController extends Controller
         return redirect()->route('colocations.show', $colocation)
             ->with('success', 'Colocation created successfully!');
     }
-    public function show(Colocation $colocation): View
+    public function show(Colocation $colocation, Request $request): View
     {
         if (!$colocation->hasActiveMember(Auth::user())) {
             abort(403, 'Unauthorized access to this colocation.');
         }
 
-        $expenses = $colocation->expenses()
-            ->with(['payer', 'category'])
-            ->orderBy('date', 'desc')
-            ->get();
+        $monthFilter = $request->get('month', 'all');
+        
+        $expensesQuery = $colocation->expenses()->with(['payer', 'category']);
+        
+        if ($monthFilter !== 'all') {
+            $expensesQuery->whereRaw('EXTRACT(MONTH FROM date) = ?', [$monthFilter]);
+        }
+        
+        $expenses = $expensesQuery->orderBy('date', 'desc')->get();
 
         $members = $colocation->activeMembers()->get();
 
-        return view('colocations.show', compact('colocation', 'expenses', 'members'));
+        $balances = BalanceCalculator::calculateColocationBalances($colocation);
+        $settlements = [];
+        foreach ($balances as $balance) {
+            foreach ($balance['individual_balances'] as $debt) {
+                $settlements[] = [
+                    'from' => $balance['user'],
+                    'to' => $debt['to'],
+                    'amount' => $debt['amount'],
+                ];
+            }
+        }
+        
+        $categoryStats = $colocation->categories()
+            ->withSum('expenses', 'amount')
+            ->get()
+            ->filter(fn ($category) => ($category->expenses_sum_amount ?? 0) > 0)
+            ->sortByDesc('expenses_sum_amount')
+            ->values();
+
+        $monthlyStats = $colocation->expenses()
+            ->selectRaw('EXTRACT(YEAR FROM date) as year, EXTRACT(MONTH FROM date) as month, SUM(amount) as total')
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+        
+        $availableMonths = $colocation->expenses()
+            ->selectRaw('DISTINCT EXTRACT(MONTH FROM date) as month')
+            ->orderBy('month')
+            ->pluck('month')
+            ->toArray();
+
+        return view('colocations.show', compact(
+            'colocation',
+            'expenses',
+            'members',
+            'monthFilter',
+            'availableMonths',
+            'settlements',
+            'categoryStats',
+            'monthlyStats'
+        ));
     }
     public function edit(Colocation $colocation): View
     {
@@ -108,6 +156,8 @@ class ColocationController extends Controller
             abort(403, 'Only owners can delete colocations.');
         }
 
+        $this->updateReputationOnCancellation($colocation);
+        $this->markAllMembersLeft($colocation);
         $colocation->cancel();
 
         return redirect()->route('dashboard')
@@ -128,6 +178,7 @@ class ColocationController extends Controller
             return back()->with('error', 'Cannot remove the owner from the colocation.');
         }
 
+        $this->transferDebtToOwner($user, $colocation);
         $colocation->removeMember($user);
 
         // Update reputation based on debts
@@ -175,14 +226,58 @@ class ColocationController extends Controller
      */
     private function calculateUserBalance(User $user, Colocation $colocation): float
     {
-        $totalPaid = $colocation->expenses()
-            ->where('payer_id', $user->id)
-            ->sum('amount');
+        $balances = BalanceCalculator::calculateColocationBalances($colocation);
 
-        $totalExpenses = $colocation->expenses()->sum('amount');
-        $memberCount = $colocation->activeMembers()->count();
-        $userShare = $memberCount > 0 ? $totalExpenses / $memberCount : 0;
+        return $balances[$user->id]['balance'] ?? 0.0;
+    }
 
-        return $totalPaid - $userShare;
+    private function transferDebtToOwner(User $member, Colocation $colocation): void
+    {
+        $balances = BalanceCalculator::calculateColocationBalances($colocation);
+
+        if (!isset($balances[$member->id])) {
+            return;
+        }
+
+        $memberBalance = $balances[$member->id]['balance'];
+        if ($memberBalance >= 0) {
+            return;
+        }
+
+        foreach ($balances[$member->id]['individual_balances'] as $debt) {
+            DebtTransfer::create([
+                'colocation_id' => $colocation->id,
+                'from_user_id' => $colocation->owner_id,
+                'to_user_id' => $debt['to']->id,
+                'origin_user_id' => $member->id,
+                'amount' => $debt['amount'],
+                'reason' => 'member_removed_with_debt',
+            ]);
+        }
+    }
+
+    private function updateReputationOnCancellation(Colocation $colocation): void
+    {
+        $balances = BalanceCalculator::calculateColocationBalances($colocation);
+        $members = $colocation->activeMembers()->get();
+
+        foreach ($members as $member) {
+            $balance = $balances[$member->id]['balance'] ?? 0;
+
+            if ($balance < 0) {
+                $member->decrement('reputation');
+            } else {
+                $member->increment('reputation');
+            }
+        }
+    }
+
+    private function markAllMembersLeft(Colocation $colocation): void
+    {
+        $members = $colocation->activeMembers()->get();
+
+        foreach ($members as $member) {
+            $colocation->removeMember($member);
+        }
     }
 }

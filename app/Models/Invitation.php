@@ -104,7 +104,7 @@ class Invitation extends Model
 
     public function getInviteUrlAttribute(): string
     {
-        return route('invitations.accept', $this->token);
+        return route('invitations.show', $this->token);
     }
 
     protected static function boot()

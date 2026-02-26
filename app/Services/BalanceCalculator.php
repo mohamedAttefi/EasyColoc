@@ -22,11 +22,8 @@ class BalanceCalculator
             ];
         }
 
-        $expenses = $colocation->expenses()->with('payer')->get();
-        $totalExpenses = 0;
-        foreach ($expenses as $expense) {
-            $totalExpenses += $expense->amount;
-        }
+        $expenses = $colocation->expenses()->get();
+        $totalExpenses = $expenses->sum('amount');
 
         $memberCount = count($members);
         $sharePerPerson = $memberCount > 0 ? $totalExpenses / $memberCount : 0;
@@ -47,9 +44,32 @@ class BalanceCalculator
             $balances[$member->id]['balance'] = $memberBalance;
         }
 
-        $individualBalances = self::calculateIndividualBalances($balances);
+        $debtTransfers = $colocation->debtTransfers()->get();
+        foreach ($debtTransfers as $transfer) {
+            if (!isset($balances[$transfer->from_user_id], $balances[$transfer->to_user_id])) {
+                continue;
+            }
 
-        return $individualBalances;
+            $balances[$transfer->from_user_id]['balance'] -= $transfer->amount;
+            $balances[$transfer->to_user_id]['balance'] += $transfer->amount;
+        }
+
+        $payments = $colocation->payments()->whereNotNull('paid_at')->get();
+        foreach ($payments as $payment) {
+            if (!isset($balances[$payment->payer_id], $balances[$payment->receiver_id])) {
+                continue;
+            }
+
+            $balances[$payment->payer_id]['balance'] += $payment->amount;
+            $balances[$payment->receiver_id]['balance'] -= $payment->amount;
+        }
+
+        $individualBalances = self::calculateIndividualBalances($balances);
+        foreach ($balances as $userId => $balance) {
+            $balances[$userId]['individual_balances'] = $individualBalances[$userId] ?? [];
+        }
+
+        return $balances;
     }
 
     private static function calculateIndividualBalances(array $balances): array
@@ -66,14 +86,11 @@ class BalanceCalculator
         }
 
         $individualBalances = [];
+        foreach ($balances as $userId => $balance) {
+            $individualBalances[$userId] = [];
+        }
 
         foreach ($debtors as $debtorId => $debtor) {
-            $individualBalances[$debtorId] = [
-                'user' => $debtor['user'],
-                'total_balance' => $debtor['balance'],
-                'debts' => []
-            ];
-
             $remainingDebt = abs($debtor['balance']);
 
             foreach ($creditors as $creditorId => $creditor) {
@@ -81,14 +98,15 @@ class BalanceCalculator
                     break;
                 }
 
-                $amountToPay = $remainingDebt;
-                if ($creditor['balance'] < $remainingDebt) {
-                    $amountToPay = $creditor['balance'];
+                $amountToPay = min($remainingDebt, $creditor['balance']);
+
+                if ($amountToPay <= 0) {
+                    continue;
                 }
-                
-                $individualBalances[$debtorId]['debts'][] = [
+
+                $individualBalances[$debtorId][] = [
                     'to' => $creditor['user'],
-                    'amount' => $amountToPay
+                    'amount' => $amountToPay,
                 ];
 
                 $remainingDebt -= $amountToPay;
@@ -116,15 +134,13 @@ class BalanceCalculator
         $totalOwedToYou = 0;
         $totalYouOwe = 0;
 
+        foreach ($userBalance['individual_balances'] as $debt) {
+            $totalYouOwe += $debt['amount'];
+        }
+
         foreach ($balances as $otherUserId => $otherBalance) {
             if ($otherUserId == $user->id) {
                 continue;
-            }
-
-            foreach ($userBalance['individual_balances'] as $debt) {
-                if ($debt['to']->id == $otherUserId) {
-                    $totalYouOwe += $debt['amount'];
-                }
             }
 
             foreach ($otherBalance['individual_balances'] as $debt) {
