@@ -8,14 +8,17 @@
                     <p class="text-slate-500 dark:text-slate-400 text-base">Rejoignez la plus grande communauté de colocataires.</p>
                 </div>
                 <!-- Registration Form -->
-                <form action="{{ route('login') }}" method="POST" class="space-y-5">
+                <form action="{{ route('register') }}" method="POST" class="space-y-5">
                     @csrf
                     <!-- Full Name -->
                     <div class="flex flex-col gap-2">
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Nom complet</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">person</span>
-                            <input class="flex w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400" placeholder="Jean Dupont" required="" type="text" />
+                            <input class="flex w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 @error('name') border-red-500 @enderror" placeholder="Jean Dupont" name="name" type="text" value="{{ old('name') }}" required="" />
+                            @error('name')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     <!-- Email -->
@@ -23,7 +26,10 @@
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Email professionnel ou personnel</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">mail</span>
-                            <input class="flex w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400" placeholder="exemple@mail.com" required="" type="email" />
+                            <input class="flex w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 @error('email') border-red-500 @enderror" placeholder="exemple@mail.com" name="email" type="email" value="{{ old('email') }}" required="" />
+                            @error('email')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     <!-- Password -->
@@ -31,7 +37,10 @@
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Mot de passe</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">lock</span>
-                            <input class="flex w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 py-3.5 pl-12 pr-12 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400" placeholder="••••••••" required="" type="password" />
+                            <input class="flex w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 py-3.5 pl-12 pr-12 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 @error('password') border-red-500 @enderror" placeholder="••••••••" name="password" type="password" required="" />
+                            @error('password')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                             <button class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors" type="button">
                                 <span class="material-symbols-outlined">visibility</span>
                             </button>
@@ -42,7 +51,10 @@
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Confirmer le mot de passe</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">lock_reset</span>
-                            <input class="flex w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400" placeholder="••••••••" required="" type="password" />
+                            <input class="flex w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 @error('password_confirmation') border-red-500 @enderror" placeholder="••••••••" name="password_confirmation" type="password" required="" />
+                            @error('password_confirmation')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     <!-- Terms -->

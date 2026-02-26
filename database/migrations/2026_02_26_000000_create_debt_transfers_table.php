@@ -11,16 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('debt_transfers', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('color')->default('blue');
-            $table->string('icon')->default('category');
             $table->foreignId('colocation_id')->constrained('colocations');
+            $table->foreignId('from_user_id')->constrained('users');
+            $table->foreignId('to_user_id')->constrained('users');
+            $table->foreignId('origin_user_id')->nullable()->constrained('users');
+            $table->decimal('amount', 10, 2);
+            $table->string('reason')->default('member_removed_with_debt');
             $table->timestamps();
-
-            
-
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('debt_transfers');
     }
 };
