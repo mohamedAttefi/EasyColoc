@@ -16,16 +16,14 @@ class InvitationMail extends Mailable
     public function __construct(
         public Invitation $invitation
     ) {}
+
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Invitation to join EasyColoc',
+            subject: 'Invitation EasyColoc',
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
@@ -39,11 +37,6 @@ class InvitationMail extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
         return [];
