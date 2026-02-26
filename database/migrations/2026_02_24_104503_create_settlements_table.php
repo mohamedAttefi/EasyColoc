@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('settlements', function (Blueprint $table) {
+        Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('colocation_id')->constrained('colocations');
-            $table->foreignId('payer_id')->constrained('colocation_members');
-            $table->foreignId('receiver_id')->constrained('colocation_members');
             $table->decimal('amount', 10, 2);
+            $table->text('description')->nullable();
+            $table->foreignId('payer_id')->constrained('users');
+            $table->foreignId('receiver_id')->constrained('users');
+            $table->foreignId('expense_id')->nullable()->constrained('expenses');
+            $table->foreignId('colocation_id')->constrained('colocations');
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('settlements');
+        Schema::dropIfExists('payments');
     }
 };

@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('colocation_members', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('colocation_id')->constrained('colocations');
-            $table->boolean('isOwner')->default(false);
-            $table->boolean('is_active')->default(true);
+            $table->string('role')->default('member'); // owner, member
             $table->timestamp('joined_at');
             $table->timestamp('left_at')->nullable();
             $table->timestamps();
+            
+            $table->primary(['user_id', 'colocation_id']);
         });
     }
 
