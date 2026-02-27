@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers;
 
@@ -8,89 +8,98 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
-use App\Mail\InvitationMail;
 
 class InvitationController extends Controller
 {
-
-    public function create(): View
+    public function create(Request $request, Colocation $colocation): View
     {
         $user = Auth::user();
-        $colocation = $user->activeColocation();
 
-        if (!$colocation) {
-            return redirect()->route('dashboard')
-                ->with('error', 'You need to join a colocation first.');
+        if (!$colocation->hasActiveMember($user)) {
+            abort(403, 'Unauthorized access to this colocation.');
         }
 
         if (!$colocation->isOwnerOf($user)) {
-            abort(403, 'Only owners can invite members.');
+            abort(403, 'Only owners can create invitations.');
         }
 
         return view('invitations.create', compact('colocation'));
     }
 
-
-    public function store(Request $request): View
+    public function store(Request $request, Colocation $colocation): RedirectResponse
     {
         $user = Auth::user();
-        $colocation = $user->activeColocation();
 
-        if (!$colocation) {
-            return redirect()->route('dashboard')
-                ->with('error', 'You need to join a colocation first.');
+        if (!$colocation->hasActiveMember($user)) {
+            abort(403, 'Unauthorized access to this colocation.');
         }
 
         if (!$colocation->isOwnerOf($user)) {
-            abort(403, 'Only owners can invite members.');
+            abort(403, 'Only owners can create invitations.');
         }
 
         $validated = $request->validate([
             'email' => 'required|email|max:255',
         ]);
 
-        $existingUser = \App\Models\User::where('email', $validated['email'])->first();
-        if ($existingUser && $colocation->hasActiveMember($existingUser)) {
-            return back()->with('error', 'This user is already a member of your colocation.');
-        }
-
         $existingInvitation = Invitation::where('email', $validated['email'])
             ->where('colocation_id', $colocation->id)
-            ->pending()
+            ->whereNull('accepted_at')
+            ->whereNull('declined_at')
+            ->where('expires_at', '>', now())
             ->first();
 
         if ($existingInvitation) {
-            return back()->with('error', 'An invitation has already been sent to this email.');
+            return back()->with('error', 'Une invitation a déjà été envoyée à cette adresse email.');
         }
 
-        $invitation = Invitation::create([
+        $memberExists = $colocation->activeMembers()
+            ->where('email', $validated['email'])
+            ->exists();
+
+        if ($memberExists) {
+            return back()->with('error', 'Cet utilisateur est déjà membre de cette colocation.');
+        }
+
+        $token = Invitation::generateToken();
+
+        Invitation::create([
             'email' => $validated['email'],
+            'token' => $token,
             'colocation_id' => $colocation->id,
             'invited_by' => $user->id,
             'expires_at' => now()->addDays(7),
         ]);
 
-        $link = $invitation->invite_url;
+        return redirect()->route('invitations.link', $colocation)
+            ->with('success', 'Invitation envoyée avec succès.');
+    }
 
-        try {
-            Mail::to($validated['email'])->send(new InvitationMail($invitation));
-            Log::info("Invitation email sent to {$validated['email']} with link: {$link}");
-        } catch (\Exception $e) {
-            // If email fails, log and continue to show link
-            Log::error('Failed to send invitation email: ' . $e->getMessage());
-            Log::info("Invitation link for manual sharing: {$link}");
+    public function link(Colocation $colocation): View
+    {
+        $user = Auth::user();
+
+        if (!$colocation->hasActiveMember($user)) {
+            abort(403, 'Unauthorized access to this colocation.');
         }
 
-        return view('invitations.link', compact('link', 'colocation'));
+        if (!$colocation->isOwnerOf($user)) {
+            abort(403, 'Only owners can view invitation links.');
+        }
+
+        $invitations = Invitation::where('colocation_id', $colocation->id)
+            ->whereNull('accepted_at')
+            ->whereNull('declined_at')
+            ->where('expires_at', '>', now())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('invitations.link', compact('colocation', 'invitations'));
     }
 
     public function show($token): View
     {
-        $invitation = Invitation::where('token', $token)
-            ->with(['colocation', 'inviter'])
-            ->firstOrFail();
+        $invitation = Invitation::where('token', $token)->firstOrFail();
 
         if ($invitation->isExpired()) {
             return view('invitations.expired');
@@ -113,52 +122,71 @@ class InvitationController extends Controller
 
         if ($invitation->isExpired()) {
             return redirect()->route('login')
-                ->with('error', 'This invitation has expired.');
+                ->with('error', 'Cette invitation a expiré.');
         }
 
         if ($invitation->isAccepted()) {
             return redirect()->route('login')
-                ->with('error', 'This invitation has already been accepted.');
+                ->with('error', 'Cette invitation a déjà été acceptée.');
         }
 
-        $user = \App\Models\User::where('email', $invitation->email)->first();
+        if ($invitation->isDeclined()) {
+            return redirect()->route('login')
+                ->with('error', 'Cette invitation a été refusée.');
+        }
+
+        $user = Auth::user();
 
         if (!$user) {
-            // User doesn't have an account - redirect to register
-            return redirect()->route('register', ['email' => $invitation->email, 'token' => $token]);
+            return redirect()->route('register')
+                ->with('info', 'Veuillez créer un compte pour accepter cette invitation.');
         }
 
-        if ($user->activeColocation()) {
-            return redirect()->route('login')
-                ->with('error', 'You are already part of an active colocation.');
+        if ($user->email !== $invitation->email) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Cette invitation n\'est pas destinée à votre compte.');
+        }
+
+        $colocation = $invitation->colocation;
+
+        if ($colocation->hasActiveMember($user)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Vous êtes déjà membre de cette colocation.');
         }
 
         $invitation->accept();
-        $invitation->colocation->addMember($user, 'member');
 
-        // Check if user is already logged in
-        if (Auth::check()) {
-            // User is logged in - redirect to dashboard
-            return redirect()->route('dashboard')
-                ->with('success', 'Invitation accepted! Welcome to your colocation.');
-        } else {
-            // User is not logged in - redirect to login
-            return redirect()->route('login')
-                ->with('success', 'Invitation accepted! Please login to access your colocation.');
-        }
+        $colocation->members()->attach($user->id, [
+            'joined_at' => now(),
+            'reputation' => 0,
+        ]);
+
+        return redirect()->route('colocations.show', $colocation)
+            ->with('success', 'Vous avez rejoint la colocation avec succès.');
     }
+
     public function decline($token): RedirectResponse
     {
         $invitation = Invitation::where('token', $token)->firstOrFail();
 
         if ($invitation->isExpired()) {
             return redirect()->route('login')
-                ->with('error', 'This invitation has expired.');
+                ->with('error', 'Cette invitation a expiré.');
+        }
+
+        if ($invitation->isAccepted()) {
+            return redirect()->route('login')
+                ->with('error', 'Cette invitation a déjà été acceptée.');
+        }
+
+        if ($invitation->isDeclined()) {
+            return redirect()->route('login')
+                ->with('error', 'Cette invitation a déjà été refusée.');
         }
 
         $invitation->decline();
 
         return redirect()->route('login')
-            ->with('success', 'Invitation declined.');
+            ->with('success', 'Invitation refusée avec succès.');
     }
 }

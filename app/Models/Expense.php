@@ -24,7 +24,6 @@ class Expense extends Model
         'amount' => 'decimal:2',
     ];
 
-    // Relationships
     public function colocation()
     {
         return $this->belongsTo(Colocation::class);
@@ -45,7 +44,6 @@ class Expense extends Model
         return $this->hasMany(Payment::class);
     }
 
-    // Scopes
     public function scopeForMonth($query, $year, $month)
     {
         return $query->whereYear('date', $year)->whereMonth('date', $month);
@@ -61,7 +59,6 @@ class Expense extends Model
         return $query->where('category_id', $categoryId);
     }
 
-    // Helper methods
     public function getFormattedAmountAttribute()
     {
         return '€' . number_format($this->amount, 2);

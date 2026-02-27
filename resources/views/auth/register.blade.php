@@ -2,15 +2,12 @@
     <main class="flex-1 flex items-center justify-center p-4 py-12 md:p-8">
         <div class="w-full max-w-[520px] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div class="p-8 md:p-10">
-                <!-- Header Text -->
                 <div class="mb-8">
                     <h1 class="text-slate-900 dark:text-slate-100 text-3xl font-black leading-tight tracking-tight mb-2">Créer un compte</h1>
                     <p class="text-slate-500 dark:text-slate-400 text-base">Rejoignez la plus grande communauté de colocataires.</p>
                 </div>
-                <!-- Registration Form -->
                 <form action="{{ route('register') }}" method="POST" class="space-y-5">
                     @csrf
-                    <!-- Full Name -->
                     <div class="flex flex-col gap-2">
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Nom complet</label>
                         <div class="relative">
@@ -21,7 +18,6 @@
                             @enderror
                         </div>
                     </div>
-                    <!-- Email -->
                     <div class="flex flex-col gap-2">
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Email professionnel ou personnel</label>
                         <div class="relative">
@@ -32,7 +28,6 @@
                             @enderror
                         </div>
                     </div>
-                    <!-- Password -->
                     <div class="flex flex-col gap-2">
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Mot de passe</label>
                         <div class="relative">
@@ -46,7 +41,6 @@
                             </button>
                         </div>
                     </div>
-                    <!-- Confirm Password -->
                     <div class="flex flex-col gap-2">
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Confirmer le mot de passe</label>
                         <div class="relative">
@@ -57,20 +51,17 @@
                             @enderror
                         </div>
                     </div>
-                    <!-- Terms -->
                     <div class="flex items-start gap-3 py-2">
                         <input class="mt-1 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer" id="terms" type="checkbox" />
                         <label class="text-sm text-slate-500 dark:text-slate-400 leading-tight cursor-pointer" for="terms">
                             J'accepte les <a class="text-primary hover:underline" href="#">Conditions d'utilisation</a> et la <a class="text-primary hover:underline" href="#">Politique de confidentialité</a> d'EasyColoc.
                         </label>
                     </div>
-                    <!-- Action Button -->
                     <button class="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group" type="submit">
                         <span>S’inscrire</span>
                         <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
                 </form>
-                <!-- Divider -->
                 <div class="relative my-8">
                     <div class="absolute inset-0 flex items-center">
                         <div class="w-full border-t border-slate-200 dark:border-slate-800"></div>
@@ -79,7 +70,6 @@
                         <span class="bg-white dark:bg-slate-900 px-4 text-slate-500 font-medium tracking-widest">Ou s'inscrire avec</span>
                     </div>
                 </div>
-                <!-- Social Registration -->
                 <div class="grid grid-cols-2 gap-4">
                     <button class="flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 rounded-lg py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                         <svg class="w-5 h-5" viewbox="0 0 24 24">
@@ -98,7 +88,6 @@
                     </button>
                 </div>
             </div>
-            <!-- Footer Text -->
             <div class="bg-slate-50 dark:bg-slate-800/50 p-6 text-center border-t border-slate-200 dark:border-slate-800">
                 <p class="text-slate-600 dark:text-slate-400 text-sm">
                     Besoin d'aide ? <a class="text-primary font-bold hover:underline" href="#">Contactez le support</a>

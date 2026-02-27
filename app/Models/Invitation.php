@@ -26,7 +26,6 @@ class Invitation extends Model
         'expires_at' => 'datetime',
     ];
 
-    // Relationships
     public function colocation()
     {
         return $this->belongsTo(Colocation::class);
@@ -37,7 +36,6 @@ class Invitation extends Model
         return $this->belongsTo(User::class, 'invited_by');
     }
 
-    // Scopes
     public function scopePending($query)
     {
         return $query->whereNull('accepted_at')
@@ -60,7 +58,6 @@ class Invitation extends Model
         return $query->where('expires_at', '<=', now());
     }
 
-    // Helper methods
     public static function generateToken(): string
     {
         return Str::random(32);

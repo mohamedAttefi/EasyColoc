@@ -112,7 +112,6 @@ class Colocation extends Model
     {
         return $this->members()
             ->where('user_id', $user->id)
-            ->wherePivotNull('left_at')
             ->exists();
     }
 

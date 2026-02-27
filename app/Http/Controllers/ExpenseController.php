@@ -16,9 +16,6 @@ class ExpenseController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Show the form for creating a new expense.
-     */
     public function create(): View
     {
         $user = Auth::user();
@@ -34,9 +31,6 @@ class ExpenseController extends Controller
         return view('expenses.create', compact('colocation', 'categories'));
     }
 
-    /**
-     * Store a newly created expense in storage.
-     */
     public function store(Request $request): RedirectResponse
     {
         $user = Auth::user();
@@ -55,7 +49,6 @@ class ExpenseController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        // Verify the category belongs to the user's colocation
         $category = Category::find($validated['category_id']);
         if ($category->colocation_id !== $colocation->id) {
             return back()->with('error', 'Invalid category selected.');
@@ -75,9 +68,6 @@ class ExpenseController extends Controller
             ->with('success', 'Expense added successfully!');
     }
 
-    /**
-     * Show the form for editing the specified expense.
-     */
     public function edit(Expense $expense): View
     {
         $user = Auth::user();
@@ -87,7 +77,6 @@ class ExpenseController extends Controller
             abort(403, 'Unauthorized access to this expense.');
         }
 
-        // Only the payer can edit the expense
         if ($expense->payer_id !== $user->id) {
             abort(403, 'Only the payer can edit this expense.');
         }
@@ -97,9 +86,6 @@ class ExpenseController extends Controller
         return view('expenses.edit', compact('expense', 'colocation', 'categories'));
     }
 
-    /**
-     * Update the specified expense in storage.
-     */
     public function update(Request $request, Expense $expense): RedirectResponse
     {
         $user = Auth::user();
@@ -109,7 +95,6 @@ class ExpenseController extends Controller
             abort(403, 'Unauthorized access to this expense.');
         }
 
-        // Only the payer can update the expense
         if ($expense->payer_id !== $user->id) {
             abort(403, 'Only the payer can update this expense.');
         }
@@ -134,9 +119,6 @@ class ExpenseController extends Controller
             ->with('success', 'Expense updated successfully!');
     }
 
-    /**
-     * Remove the specified expense from storage.
-     */
     public function destroy(Expense $expense): RedirectResponse
     {
         $user = Auth::user();
@@ -146,7 +128,6 @@ class ExpenseController extends Controller
             abort(403, 'Unauthorized access to this expense.');
         }
 
-        // Only the payer can delete the expense
         if ($expense->payer_id !== $user->id) {
             abort(403, 'Only the payer can delete this expense.');
         }

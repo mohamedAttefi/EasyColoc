@@ -16,7 +16,6 @@ class Category extends Model
         'colocation_id',
     ];
 
-    // Relationships
     public function colocation()
     {
         return $this->belongsTo(Colocation::class);
@@ -27,7 +26,6 @@ class Category extends Model
         return $this->hasMany(Expense::class);
     }
 
-    // Helper methods
     public function getTotalAmountAttribute()
     {
         return $this->expenses()->sum('amount');

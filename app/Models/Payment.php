@@ -24,7 +24,6 @@ class Payment extends Model
         'paid_at' => 'datetime',
     ];
 
-    // Relationships
     public function payer()
     {
         return $this->belongsTo(User::class, 'payer_id');
@@ -45,7 +44,6 @@ class Payment extends Model
         return $this->belongsTo(Colocation::class);
     }
 
-    // Helper methods
     public function getFormattedAmountAttribute()
     {
         return '€' . number_format($this->amount, 2);
