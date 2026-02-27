@@ -22,6 +22,33 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+
+        // Handle invitation token if present
+        $invitationToken = session('invitation_token');
+        if ($invitationToken) {
+            $invitation = \App\Models\Invitation::where('token', $invitationToken)->first();
+            
+            if ($invitation && $invitation->email === $user->email && !$invitation->isExpired()) {
+                $colocation = $invitation->colocation;
+                
+                // Accept the invitation
+                $invitation->accept();
+                
+                // Add user to colocation
+                $colocation->members()->attach($user->id, [
+                    'joined_at' => now(),
+                    'reputation' => 0,
+                ]);
+                
+                // Clear the invitation token from session
+                session()->forget('invitation_token');
+                
+                return redirect()->route('colocations.show', $colocation)
+                    ->with('success', 'Bienvenue! Vous avez rejoint la colocation avec succès.');
+            }
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

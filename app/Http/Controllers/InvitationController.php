@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 
+
 class InvitationController extends Controller
 {
     public function create(Request $request, Colocation $colocation): View
@@ -50,7 +51,7 @@ class InvitationController extends Controller
             ->first();
 
         if ($existingInvitation) {
-            return back()->with('error', 'Une invitation a déjà été envoyée à cette adresse email.');
+            return back()->with('error', "Une invitation a déjà été envoyée à l'adresse email '{$validated['email']}'. Cette invitation expirera le {$existingInvitation->expires_at->format('d M Y à H:i')}.");
         }
 
         $memberExists = $colocation->activeMembers()
@@ -97,7 +98,7 @@ class InvitationController extends Controller
         return view('invitations.link', compact('colocation', 'invitations'));
     }
 
-    public function show($token): View
+    public function show($token): View|RedirectResponse
     {
         $invitation = Invitation::where('token', $token)->firstOrFail();
 
@@ -113,7 +114,20 @@ class InvitationController extends Controller
             return view('invitations.declined');
         }
 
-        return view('invitations.show', compact('invitation'));
+        // Check if email already exists in the system
+        $existingUser = \App\Models\User::where('email', $invitation->email)->first();
+        
+        if ($existingUser) {
+            // Email exists, redirect to login with invitation info
+            return redirect()->route('login')
+                ->with('invitation_token', $token)
+                ->with('info', 'Veuillez vous connecter pour accepter cette invitation.');
+        } else {
+            // Email doesn't exist, redirect to register with invitation info
+            return redirect()->route('register')
+                ->with('invitation_token', $token)
+                ->with('info', 'Veuillez créer un compte pour accepter cette invitation.');
+        }
     }
 
     public function accept($token): RedirectResponse
@@ -138,8 +152,18 @@ class InvitationController extends Controller
         $user = Auth::user();
 
         if (!$user) {
-            return redirect()->route('register')
-                ->with('info', 'Veuillez créer un compte pour accepter cette invitation.');
+            // Store token in session and redirect to appropriate auth page
+            $existingUser = \App\Models\User::where('email', $invitation->email)->first();
+            
+            if ($existingUser) {
+                return redirect()->route('login')
+                    ->with('invitation_token', $token)
+                    ->with('info', 'Veuillez vous connecter pour accepter cette invitation.');
+            } else {
+                return redirect()->route('register')
+                    ->with('invitation_token', $token)
+                    ->with('info', 'Veuillez créer un compte pour accepter cette invitation.');
+            }
         }
 
         if ($user->email !== $invitation->email) {

@@ -44,8 +44,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // Invitation routes
-    Route::get('/invitations/create', [InvitationController::class, 'create'])->name('invitations.create');
-    Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
+    Route::get('/invitations/create/{colocation}', [InvitationController::class, 'create'])->name('invitations.create');
+    Route::post('/invitations/{colocation}', [InvitationController::class, 'store'])->name('invitations.store');
+    Route::get('/invitations/link/{colocation}', [InvitationController::class, 'link'])->name('invitations.link');
 
     // Payments / settlements
     Route::post('/colocations/{colocation}/payments', [PaymentController::class, 'store'])->name('payments.store');

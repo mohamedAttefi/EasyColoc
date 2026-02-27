@@ -6,13 +6,41 @@
 
 @section('content')
     <div class="max-w-2xl mx-auto">
+        <!-- Error Messages -->
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="material-symbols-outlined text-red-600 dark:text-red-400">error</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700 dark:text-red-300">{{ session('error') }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Success Messages -->
+        @if(session('success'))
+            <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="material-symbols-outlined text-green-600 dark:text-green-400">check_circle</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-green-700 dark:text-green-300">{{ session('success') }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-lg shadow-slate-200/40">
             <div class="p-6 border-b border-slate-200 dark:border-slate-800">
                 <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Envoyer une Invitation</h1>
                 <p class="text-slate-500 dark:text-slate-400 mt-1">Invitez quelqu'un à rejoindre {{ $colocation->name }}</p>
             </div>
             
-            <form method="POST" action="{{ route('invitations.store') }}" class="p-6 space-y-6">
+            <form method="POST" action="{{ route('invitations.store', $colocation) }}" class="p-6 space-y-6">
                 @csrf
                 
                 <!-- Email -->

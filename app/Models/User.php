@@ -83,7 +83,10 @@ class User extends Authenticatable
 
     public function isMemberOf(Colocation $colocation): bool
     {
-        return $colocation->members()->where('user_id', $this->id)->exists();
+        return $colocation->members()
+            ->where('user_id', $this->id)
+            ->wherePivotNull('left_at')
+            ->exists();
     }
 
     public function canJoinColocation(): bool

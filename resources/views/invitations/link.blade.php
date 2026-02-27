@@ -19,17 +19,28 @@
                 </p>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-6">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm font-mono text-slate-700 dark:text-slate-300">{{ $link }}</span>
-                    <button onclick="copyLink()" class="ml-4 px-3 py-1 bg-primary text-white text-sm rounded-lg hover:bg-primary/90 transition-colors">
-                        Copier
-                    </button>
+            @if($invitations->count() > 0)
+                @foreach($invitations as $invitation)
+                    <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-mono text-slate-700 dark:text-slate-300">{{ $invitation->invite_url }}</span>
+                            <button onclick="copyLink('{{ $invitation->invite_url }}')" class="ml-4 px-3 py-1 bg-primary text-white text-sm rounded-lg hover:bg-primary/90 transition-colors">
+                                Copier
+                            </button>
+                        </div>
+                        <div class="mt-2 text-xs text-slate-500">
+                            Envoyée à: {{ $invitation->email }} • Expire: {{ $invitation->expires_at->format('d M Y') }}
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-6">
+                    <p class="text-slate-600 dark:text-slate-400">Aucune invitation active trouvée.</p>
                 </div>
-            </div>
+            @endif
 
             <div class="text-sm text-slate-500 dark:text-slate-400">
-                <p class="mb-2">Cette invitation expirera dans 7 jours.</p>
+                <p class="mb-2">Les invitations expirent dans 7 jours.</p>
                 <p>Vous pouvez également vérifier les logs pour voir si l'email a été envoyé avec succès.</p>
             </div>
 
@@ -45,9 +56,8 @@
     </div>
 
     <script>
-        function copyLink() {
-            const linkText = '{{ $link }}';
-            navigator.clipboard.writeText(linkText).then(function() {
+        function copyLink(link) {
+            navigator.clipboard.writeText(link).then(function() {
                 alert('Lien copié dans le presse-papiers!');
             }, function(err) {
                 console.error('Could not copy text: ', err);

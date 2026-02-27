@@ -143,12 +143,12 @@
             </div>
         </div>
         
-        <!-- Colocation Insight / Graph Placeholder -->
+        @if($activeColocation)
         <div class="bg-gradient-to-br from-primary via-primary/80 to-accent rounded-2xl p-8 shadow-xl shadow-primary/30 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative mt-8">
             <div class="relative z-10">
                 <h3 class="text-2xl font-bold text-white mb-2">Invitez votre nouveau colocataire!</h3>
                 <p class="text-white/80 max-w-sm mb-6">Trouvé quelqu'un pour la chambre vide? Invitez-le à commencer à gérer les dépenses partagées immédiatement.</p>
-                <a href="{{ route('invitations.create') }}" class="bg-white text-primary px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
+                <a href="{{ route('invitations.create', $activeColocation) }}" class="bg-white text-primary px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
                     Envoyer une Invitation
                 </a>
             </div>
@@ -157,6 +157,7 @@
                 <span class="material-symbols-outlined text-[200px] text-white absolute -right-8 -bottom-8">diversity_3</span>
             </div>
         </div>
+        @endif
     @else
         <!-- No Colocation State -->
         <div class="max-w-2xl mx-auto text-center">

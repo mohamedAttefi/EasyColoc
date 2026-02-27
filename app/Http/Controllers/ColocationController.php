@@ -23,7 +23,7 @@ class ColocationController extends Controller
 
         return view('colocations.create');
     }
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -151,7 +151,6 @@ class ColocationController extends Controller
      */
     public function destroy(Colocation $colocation): RedirectResponse
     {
-        // Only owners can delete
         if (!$colocation->isOwnerOf(Auth::user())) {
             abort(403, 'Only owners can delete colocations.');
         }
@@ -164,12 +163,8 @@ class ColocationController extends Controller
             ->with('success', 'Colocation cancelled successfully!');
     }
 
-    /**
-     * Remove a member from the colocation.
-     */
     public function removeMember(Colocation $colocation, User $user): RedirectResponse
     {
-        // Only owners can manage members
         if (!$colocation->isOwnerOf(Auth::user())) {
             abort(403, 'Only owners can manage members.');
         }
@@ -181,15 +176,11 @@ class ColocationController extends Controller
         $this->transferDebtToOwner($user, $colocation);
         $colocation->removeMember($user);
 
-        // Update reputation based on debts
         $this->updateReputationOnLeave($user, $colocation);
 
         return back()->with('success', 'Member removed successfully!');
     }
 
-    /**
-     * Leave the colocation.
-     */
     public function leave(Colocation $colocation): RedirectResponse
     {
         if ($colocation->owner_id === Auth::id()) {
@@ -198,25 +189,19 @@ class ColocationController extends Controller
 
         $colocation->removeMember(Auth::user());
 
-        // Update reputation based on debts
         $this->updateReputationOnLeave(Auth::user(), $colocation);
 
         return redirect()->route('dashboard')
             ->with('success', 'You have left the colocation.');
     }
 
-    /**
-     * Update user reputation when leaving a colocation.
-     */
     private function updateReputationOnLeave(User $user, Colocation $colocation): void
     {
         $balance = $this->calculateUserBalance($user, $colocation);
         
         if ($balance < 0) {
-            // User has debts, decrease reputation
             $user->decrement('reputation');
         } else {
-            // User has no debts, increase reputation
             $user->increment('reputation');
         }
     }

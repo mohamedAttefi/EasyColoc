@@ -117,6 +117,7 @@ class BalanceCalculator
         return $individualBalances;
     }
 
+
     public static function getUserBalanceSummary(User $user, Colocation $colocation): array
     {
         $balances = self::calculateColocationBalances($colocation);

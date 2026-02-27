@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Colocation extends Model
 {
@@ -105,14 +106,24 @@ class Colocation extends Model
 
     public function hasMember(User $user): bool
     {
-        return $this->members()->where('user_id', $user->id)->exists();
+        return $this->members()
+            ->where('user_id', $user->id)
+            ->wherePivotNull('left_at')
+            ->exists();
     }
 
     public function hasActiveMember(User $user): bool
     {
-        return $this->members()
-            ->where('user_id', $user->id)
-            ->exists();
+        $result = DB::selectOne(
+            'SELECT EXISTS(
+            select 1
+            from colocation_members m join colocations c on m.colocation_id = c.id
+            join users u on m.user_id = u.id WHERE c.id = ? and u.id = ? and m.left_at IS NULL
+        ) AS has_member',
+            [$this->id, $user->id]
+        );
+
+        return (bool) $result->has_member;
     }
 
     public function getOwnerAttribute(): User
