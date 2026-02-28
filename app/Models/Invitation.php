@@ -103,18 +103,4 @@ class Invitation extends Model
     {
         return route('invitations.show', $this->token);
     }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($invitation) {
-            if (empty($invitation->token)) {
-                $invitation->token = static::generateToken();
-            }
-            if (empty($invitation->expires_at)) {
-                $invitation->expires_at = now()->addDays(7);
-            }
-        });
-    }
 }
