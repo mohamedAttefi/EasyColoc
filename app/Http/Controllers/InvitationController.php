@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class InvitationController extends Controller
@@ -74,6 +75,12 @@ class InvitationController extends Controller
 
         // Send email invitation
         $this->sendInvitationEmail($invitation);
+        
+        // Debug: Log the invitation details
+        \Log::info('Invitation Created - Token: ' . $invitation->token);
+        \Log::info('Invitation Created - Email: ' . $invitation->email);
+        \Log::info('Invitation Created - Colocation ID: ' . $invitation->colocation_id);
+        \Log::info('Invitation Created - Invite URL: ' . route('invitations.show', $invitation->token));
 
         return redirect()->route('invitations.link', $colocation)
             ->with('success', 'Invitation envoyée avec succès.');
@@ -83,58 +90,17 @@ class InvitationController extends Controller
     {
         $inviteUrl = route('invitations.show', $invitation->token);
         
-        $subject = 'Invitation EasyColoc';
-        $message = "
-            <html>
-            <head>
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fbf7f2; }
-                    .container { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-                    .header { text-align: center; margin-bottom: 32px; }
-                    .logo { font-size: 24px; font-weight: bold; color: #0f766e; }
-                    .content { margin-bottom: 32px; }
-                    .button { display: inline-block; background: #0f766e; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin: 16px 0; }
-                    .button:hover { background: #0b5f59; }
-                    .footer { text-align: center; color: #64748b; font-size: 14px; margin-top: 32px; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <div class='logo'>EasyColoc</div>
-                    </div>
-                    <div class='content'>
-                        <h2>Vous êtes invité(e) à rejoindre une colocation !</h2>
-                        <p>Bonjour,</p>
-                        <p><strong>{$invitation->inviter->name}</strong> vous invite à rejoindre la colocation <strong>{$invitation->colocation->name}</strong> sur EasyColoc.</p>";
-                        
-                        if ($invitation->colocation->description) {
-                            $message .= "<p><em>{$invitation->colocation->description}</em></p>";
-                        }
-                        
-                        $message .= "
-                        <p>EasyColoc vous aide à suivre les dépenses partagées, calculer qui doit quoi à qui et gérer le budget de la colocation.</p>
-                        <p style='text-align: center;'>
-                            <a href='{$inviteUrl}' class='button'>Accepter l'invitation</a>
-                        </p>
-                        <p><small>Cette invitation expirera dans 7 jours.</small></p>
-                    </div>
-                    <div class='footer'>
-                        <p>Si vous n'avez pas encore de compte EasyColoc, vous pourrez en créer un après avoir cliqué sur le lien ci-dessus.</p>
-                        <p>© " . date('Y') . " EasyColoc. Tous droits réservés.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ";
-
-        // Use Laravel's Mail system for better reliability
+        // Use Laravel's Mail system with proper HTML content
         try {
-            Mail::raw($message, function ($message) use ($invitation, $subject) {
+            Mail::send('emails.invitation', [
+                'invitation' => $invitation,
+                'colocation' => $invitation->colocation,
+                'inviter' => $invitation->inviter,
+                'inviteUrl' => $inviteUrl,
+            ], function ($message) use ($invitation) {
                 $message->to($invitation->email)
-                    ->subject($subject)
-                    ->from('noreply@easycoloc.com', 'EasyColoc')
-                    ->html($message);
+                    ->subject('Invitation EasyColoc')
+                    ->from('noreply@easycoloc.com', 'EasyColoc');
             });
         } catch (\Exception $e) {
             // Log error but don't fail the invitation creation
@@ -166,6 +132,11 @@ class InvitationController extends Controller
 
     public function show($token): View|RedirectResponse
     {
+        // Debug: Log incoming token and session
+        \Log::info('Invitation Show - Incoming token: ' . $token);
+        \Log::info('Invitation Show - Session ID: ' . session()->getId());
+        \Log::info('Invitation Show - All session data: ' . json_encode(session()->all()));
+        
         $invitation = Invitation::where('token', $token)->firstOrFail();
 
         if ($invitation->isExpired()) {
@@ -183,13 +154,20 @@ class InvitationController extends Controller
         // Check if email already exists in system
         $existingUser = \App\Models\User::where('email', $invitation->email)->first();
         
+        // Debug: Log invitation details
+        \Log::info('Invitation Show - Token: ' . $token);
+        \Log::info('Invitation Show - Email: ' . $invitation->email);
+        \Log::info('Invitation Show - Existing User: ' . ($existingUser ? 'YES' : 'NO'));
+        
         if ($existingUser) {
             // Email exists, redirect to login with invitation info
+            \Log::info('Invitation Show - Redirecting to login with token');
             return redirect()->route('login')
                 ->with('invitation_token', $token)
                 ->with('info', 'Veuillez vous connecter pour accepter cette invitation.');
         } else {
             // Email doesn't exist, redirect to register with invitation info
+            \Log::info('Invitation Show - Redirecting to register with token');
             return redirect()->route('register')
                 ->with('invitation_token', $token)
                 ->with('info', 'Veuillez créer un compte pour accepter cette invitation.');
@@ -235,6 +213,12 @@ class InvitationController extends Controller
         if ($user->email !== $invitation->email) {
             return redirect()->route('dashboard')
                 ->with('error', 'Cette invitation n\'est pas destinée à votre compte.');
+        }
+
+        // Check if user already has active colocation (Scenario 4)
+        if ($user->activeColocation()) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Vous avez déjà une colocation active. Vous ne pouvez pas en rejoindre une nouvelle.');
         }
 
         $colocation = $invitation->colocation;

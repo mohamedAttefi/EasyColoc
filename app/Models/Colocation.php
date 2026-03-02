@@ -97,11 +97,44 @@ class Colocation extends Model
         ]);
     }
 
-    public function removeMember(User $user)
+    public function removeMember(User $user, User $removedBy = null): bool
     {
+        // Check if user is a member
+        if (!$this->hasActiveMember($user)) {
+            return false;
+        }
+
+        // Calculate user's balance before removal
+        $balanceCalculator = new \App\Services\BalanceCalculator();
+        $balances = $balanceCalculator->calculateColocationBalances($this);
+        $userBalance = $balances[$user->id]['balance'] ?? 0;
+
+        // If user has debt (negative balance), apply reputation penalty
+        if ($userBalance < 0) {
+            $penalty = abs($userBalance) * 0.1; // 10% of debt as penalty
+            $user->update([
+                'reputation' => max(0, $user->reputation - $penalty)
+            ]);
+
+            // If removed by owner, transfer debt to owner
+            if ($removedBy && $removedBy->isOwnerOf($this)) {
+                // Create debt transfer record
+                \App\Models\DebtTransfer::create([
+                    'debtor_id' => $this->owner_id,
+                    'creditor_id' => null, // System debt
+                    'colocation_id' => $this->id,
+                    'amount' => abs($userBalance),
+                    'date' => now(),
+                ]);
+            }
+        }
+
+        // Mark user as left
         $this->members()->updateExistingPivot($user->id, [
-            'left_at' => now(),
+            'left_at' => now()
         ]);
+
+        return true;
     }
 
     public function hasMember(User $user): bool
@@ -124,11 +157,6 @@ class Colocation extends Model
         );
 
         return (bool) $result->has_member;
-    }
-
-    public function getOwnerAttribute(): User
-    {
-        return $this->owner;
     }
 
     public function cancel()

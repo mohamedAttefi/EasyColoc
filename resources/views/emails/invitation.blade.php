@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -60,7 +60,7 @@
         </div>
 
         <div class="content">
-            <h2>Vous êtes invité(e) à rejoindre une colocation&nbsp;!</h2>
+            <h2>Vous êtes invité(e) à rejoindre une colocation !</h2>
 
             <p>Bonjour,</p>
 

@@ -151,7 +151,7 @@
                         @foreach($recentColocations as $colocation)
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
                                 <td class="px-6 py-4 font-medium">{{ $colocation->name }}</td>
-                                <td class="px-6 py-4">{{ $colocation->owner->name }}</td>
+                                <td class="px-6 py-4">{{ $colocation->owner?->name ?? 'N/A' }}</td>
                                 <td class="px-6 py-4">{{ $colocation->activeMembers()->count() }}</td>
                                 <td class="px-6 py-4 text-slate-500">{{ $colocation->created_at->format('M d, Y') }}</td>
                                 <td class="px-6 py-4">

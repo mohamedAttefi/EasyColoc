@@ -8,6 +8,12 @@
                 </div>
                 <form action="{{ route('register') }}" method="POST" class="space-y-5">
                     @csrf
+                    @if(session('invitation_token'))
+                        <input type="hidden" name="invitation_token" value="{{ session('invitation_token') }}">
+                    @endif
+                    @if(request()->query('token'))
+                        <input type="hidden" name="invitation_token" value="{{ request()->query('token') }}">
+                    @endif
                     <div class="flex flex-col gap-2">
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-normal">Nom complet</label>
                         <div class="relative">

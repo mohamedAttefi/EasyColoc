@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -23,26 +24,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required', 
-                'string', 
-                'lowercase', 
-                'email:rfc,dns', 
-                'max:255', 
-                'unique:'.User::class,
-                function ($attribute, $value, $fail) {
-                    $domain = substr(strrchr($value, "@"), 1);
-                    $blockedDomains = [
-                        'tempmail.org', '10minutemail.com', 'guerrillamail.com',
-                        'mailinator.com', 'yopmail.com', 'temp-mail.org',
-                        'throwaway.email', 'maildrop.cc', 'tempmail.de'
-                    ];
-                    
-                    if (in_array($domain, $blockedDomains)) {
-                        $fail('Les adresses email temporaires ne sont pas autorisées.');
-                    }
-                }
-            ],
+            'email' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -58,28 +40,29 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Handle invitation token if present
-        $invitationToken = session('invitation_token');
+        $invitationToken = session('invitation_token') ?: $request->input('invitation_token') ?: $request->query('token');
+        
         if ($invitationToken) {
             $invitation = \App\Models\Invitation::where('token', $invitationToken)->first();
-            
+                        
             if ($invitation && $invitation->email === $user->email && !$invitation->isExpired()) {
+                
                 $colocation = $invitation->colocation;
                 
-                // Accept the invitation
                 $invitation->accept();
                 
-                // Add user to colocation
                 $colocation->members()->attach($user->id, [
                     'joined_at' => now(),
                     'reputation' => 0,
                 ]);
                 
-                // Clear the invitation token from session
+                
                 session()->forget('invitation_token');
                 
                 return redirect()->route('colocations.show', $colocation)
                     ->with('success', 'Bienvenue! Vous avez rejoint la colocation avec succès.');
+            } else {
+                \Log::info('Registration - Invitation validation failed');
             }
         }
 

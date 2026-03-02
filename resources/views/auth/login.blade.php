@@ -6,6 +6,12 @@
                 </div>
                 <form method="POST" action="{{ route('login') }}" class="space-y-6">
                     @csrf
+                    @if(session('invitation_token'))
+                        <input type="hidden" name="invitation_token" value="{{ session('invitation_token') }}">
+                    @endif
+                    @if(request()->query('token'))
+                        <input type="hidden" name="invitation_token" value="{{ request()->query('token') }}">
+                    @endif
                     <!-- Email Field -->
                     <div class="space-y-2">
                         <label class="text-sm font-medium block" for="email">Adresse email</label>

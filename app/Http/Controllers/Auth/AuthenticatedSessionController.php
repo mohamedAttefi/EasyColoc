@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -24,15 +25,18 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        // Handle invitation token if present
-        $invitationToken = session('invitation_token');
+        $invitationToken = session('invitation_token') ?: $request->input('invitation_token') ?: $request->query('token');
+        
+        
         if ($invitationToken) {
             $invitation = \App\Models\Invitation::where('token', $invitationToken)->first();
             
+            
             if ($invitation && $invitation->email === $user->email && !$invitation->isExpired()) {
+                
                 $colocation = $invitation->colocation;
                 
-                // Accept the invitation
+                // Accept invitation
                 $invitation->accept();
                 
                 // Add user to colocation
@@ -41,11 +45,14 @@ class AuthenticatedSessionController extends Controller
                     'reputation' => 0,
                 ]);
                 
+                
                 // Clear the invitation token from session
                 session()->forget('invitation_token');
                 
                 return redirect()->route('colocations.show', $colocation)
                     ->with('success', 'Bienvenue! Vous avez rejoint la colocation avec succès.');
+            } else {
+                Log::info('Login - Invitation validation failed');
             }
         }
 

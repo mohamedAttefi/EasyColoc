@@ -9,6 +9,27 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
+
+Route::get('/test-mail', function () {
+    Mail::raw('Test email from EasyColoc', function ($message) {
+        $message->to('attefimohamed0@gmail.com')
+                ->subject('Test Email from EasyColoc');
+    });
+
+    return "Email sent successfully!";
+});
+
+Route::get('/debug-invitations', function () {
+    $invitations = \App\Models\Invitation::all();
+    $output = "Invitations count: " . $invitations->count() . "<br>";
+    
+    foreach ($invitations as $inv) {
+        $output .= "Token: " . $inv->token . " | Email: " . $inv->email . " | Colocation: " . $inv->colocation_id . " | Expires: " . $inv->expires_at . "<br>";
+    }
+    
+    return $output;
+});
 
 Route::get('/', function () {
     return view('welcome');
